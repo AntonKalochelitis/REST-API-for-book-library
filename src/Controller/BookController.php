@@ -192,6 +192,22 @@ class BookController extends AbstractController
     #[OA\Get(
         path: '/api/book/list',
         summary: 'Get book list',
+        parameters: [
+            new OA\Parameter(
+                name: 'page',
+                in: 'query',
+                description: 'Page number',
+                required: false,
+                schema: new OA\Schema(type: 'integer', default: 1)
+            ),
+            new OA\Parameter(
+                name: 'limit',
+                in: 'query',
+                description: 'Number of items per page',
+                required: false,
+                schema: new OA\Schema(type: 'integer', default: 10)
+            ),
+        ],
         responses: [
             new OA\Response(
                 response: Response::HTTP_OK,
@@ -200,24 +216,32 @@ class BookController extends AbstractController
                     type: "array",
                     items: new OA\Items(
                         properties: [
-                            new OA\Property(property: "id", type: "int"),
-                            new OA\Property(property: "title", type: "string"),
-                            new OA\Property(property: "description", type: "string"),
-                            new OA\Property(property: "image_name", type: "string"),
-                            new OA\Property(property: "publication_date", type: "string"),
-                            new OA\Property(
-                                property: "authors",
-                                type: "array",
-                                items: new OA\Items(
-                                    properties: [
-                                        new OA\Property(property: "id", type: "int"),
-                                        new OA\Property(property: "first_name", type: "string"),
-                                        new OA\Property(property: "last_name", type: "string"),
-                                        new OA\Property(property: "patronymic", type: "string"),
-                                    ],
-                                    type: "object",
-                                )
-                            ),
+                            new OA\Property(property: "items", type: "array", items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: "id", type: "int"),
+                                    new OA\Property(property: "title", type: "string"),
+                                    new OA\Property(property: "description", type: "string"),
+                                    new OA\Property(property: "image_name", type: "string"),
+                                    new OA\Property(property: "publication_date", type: "string"),
+                                    new OA\Property(
+                                        property: "authors",
+                                        type: "array",
+                                        items: new OA\Items(
+                                            properties: [
+                                                new OA\Property(property: "id", type: "int"),
+                                                new OA\Property(property: "first_name", type: "string"),
+                                                new OA\Property(property: "last_name", type: "string"),
+                                                new OA\Property(property: "patronymic", type: "string"),
+                                            ],
+                                            type: "object",
+                                        )
+                                    ),
+                                ],
+                                type: "object",
+                            )),
+                            new OA\Property(property: "total", type: "integer"),
+                            new OA\Property(property: "page", type: "integer"),
+                            new OA\Property(property: "limit", type: "integer"),
                         ],
                         type: "object",
                     ),
@@ -235,10 +259,13 @@ class BookController extends AbstractController
             )
         ]
     )]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
+        $page = $request->query->getInt('page', 1);
+        $limit = $request->query->getInt('limit', 10);
+
         try {
-            $data = $this->bookService->getBookList();
+            $data = $this->bookService->getBookList($page, $limit);
             $status = Response::HTTP_OK;
         } catch (NotFoundHttpException $e) {
             $data = ['error' => $e->getMessage()];

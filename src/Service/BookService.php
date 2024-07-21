@@ -10,6 +10,7 @@ use App\Entity\Book;
 use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -112,20 +113,30 @@ class BookService
     /**
      * Получение списка всех книг
      *
+     * @param int $page
+     * @param int $limit
      * @return array
      */
-    public function getBookList(): array
+    public function getBookList(int $page, int $limit): array
     {
-        $result = [];
+        $queryBuilder = $this->bookRepository->createQueryBuilder('b')
+            ->leftJoin('b.authors', 'a')
+            ->addSelect('a')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
 
-        foreach ($this->bookRepository->findAll() as $book) {
-            $result[] = [
+        $paginator = new Paginator($queryBuilder, true);
+        $totalItems = count($paginator);
+        $bookList = iterator_to_array($paginator);
+
+        $result = array_map(function (Book $book) {
+            return [
                 'id' => $book->getId(),
                 'title' => $book->getTitle(),
                 'description' => $book->getDescription(),
                 'image_name' => $book->getImageName(),
                 'publication_date' => $book->getPublicationDate(),
-                'authors' => array_map(function ($author) {
+                'authors' => array_map(function (Author $author) {
                     return [
                         'id' => $author->getId(),
                         'first_name' => $author->getFirstName(),
@@ -134,9 +145,14 @@ class BookService
                     ];
                 }, $book->getAuthors()->toArray()),
             ];
-        }
+        }, $bookList);
 
-        return $result;
+        return [
+            'items' => $result,
+            'total' => $totalItems,
+            'page' => $page,
+            'limit' => $limit,
+        ];
     }
 
     public function validateDTOSearch(Request $request): DTOSearch
