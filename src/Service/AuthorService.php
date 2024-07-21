@@ -130,4 +130,20 @@ class AuthorService
             'patronymic' => $author->getPatronymic(),
         ];
     }
+
+    /**
+     * @param int $id
+     * @return void
+     */
+    public function deleteAuthorByID(int $id): void
+    {
+        $author = $this->authorRepository->find($id);
+
+        if (!$author) {
+            throw new NotFoundHttpException("Author with ID $id not found.");
+        }
+
+        $this->entityManager->remove($author);
+        $this->entityManager->flush();
+    }
 }

@@ -243,4 +243,53 @@ class AuthorController extends AbstractController
 
         return $this->json($data, $status);
     }
+
+    #[Route('/api/author/delete/{id}', name: 'delete_author', methods: ['DELETE'])]
+    #[OA\Tag(name: 'Author')]
+    #[OA\Delete(
+        path: '/api/author/delete/{id}',
+        summary: 'Delete author',
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "Author deleted successfully",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "message", type: "string"),
+                        new OA\Property(property: "status", type: "string")
+                    ],
+                    type: "object",
+                )
+            ),
+            new OA\Response(
+                response: Response::HTTP_BAD_REQUEST,
+                description: "Bad request",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "error", type: "string")
+                    ],
+                    type: "object",
+                )
+            )
+        ]
+    )]
+    public function delete(int $id): JsonResponse
+    {
+        try {
+            $this->authorService->deleteAuthorByID($id);
+            $data = [
+                'message' => 'Delete ID:' . $id . ' is OK',
+                'status' => 'success'
+            ];
+            $status = Response::HTTP_OK;
+        } catch (NotFoundHttpException $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = Response::HTTP_NOT_FOUND;
+        } catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = Response::HTTP_BAD_REQUEST;
+        }
+
+        return $this->json($data, $status);
+    }
 }
