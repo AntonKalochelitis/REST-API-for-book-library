@@ -101,35 +101,70 @@ class AuthorController extends AbstractController
     #[OA\Get(
         path: '/api/author/list',
         summary: 'Get author list',
+        parameters: [
+            new OA\Parameter(
+                name: 'page',
+                in: 'query',
+                description: 'Page number',
+                required: false,
+                schema: new OA\Schema(type: 'integer', example: 1)
+            ),
+            new OA\Parameter(
+                name: 'limit',
+                in: 'query',
+                description: 'Number of items per page',
+                required: false,
+                schema: new OA\Schema(type: 'integer', example: 10)
+            ),
+        ],
         responses: [
             new OA\Response(
                 response: Response::HTTP_OK,
                 description: "Successfully",
                 content: new OA\JsonContent(
-                    type: "array",
-                    items: new OA\Items(
-                        properties: [
-                            new OA\Property(property: "id", type: "int"),
-                            new OA\Property(property: "firstName", type: "string"),
-                            new OA\Property(property: "lastName", type: "string"),
-                            new OA\Property(property: "patronymic", type: "string"),
-                            new OA\Property(
-                                property: "book_list",
-                                type: "array",
-                                items: new OA\Items(
-                                    properties: [
-                                        new OA\Property(property: "id", type: "int"),
-                                        new OA\Property(property: "title", type: "string"),
-                                        new OA\Property(property: "description", type: "string"),
-                                        new OA\Property(property: "image_name", type: "string"),
-                                        new OA\Property(property: "publication_date", type: "string"),
-                                    ],
-                                    type: "object",
-                                )
+                    properties: [
+                        new OA\Property(
+                            property: "items",
+                            type: "array",
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: "id", type: "int"),
+                                    new OA\Property(property: "firstName", type: "string"),
+                                    new OA\Property(property: "lastName", type: "string"),
+                                    new OA\Property(property: "patronymic", type: "string"),
+                                    new OA\Property(
+                                        property: "book_list",
+                                        type: "array",
+                                        items: new OA\Items(
+                                            properties: [
+                                                new OA\Property(property: "id", type: "int"),
+                                                new OA\Property(property: "title", type: "string"),
+                                                new OA\Property(property: "description", type: "string"),
+                                                new OA\Property(property: "image_name", type: "string"),
+                                                new OA\Property(property: "publication_date", type: "string"),
+                                            ],
+                                            type: "object",
+                                        )
+                                    ),
+                                ],
+                                type: "object",
                             ),
-                        ],
-                        type: "object",
-                    ),
+                        ),
+                        new OA\Property(property: "total", type: "integer"),
+                        new OA\Property(property: "page", type: "integer"),
+                        new OA\Property(property: "limit", type: "integer"),
+                    ],
+                    type: "object",
+                )
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Bad request",
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "error", type: "string")
+                    ],
+                    type: "object",
                 )
             ),
             new OA\Response(
@@ -144,14 +179,22 @@ class AuthorController extends AbstractController
             )
         ]
     )]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
         try {
-            $data = $this->authorService->getAuthorList();
+            // Получение параметров пагинации из запроса
+            $page = $request->query->getInt('page', 1);
+            $limit = $request->query->getInt('limit', 10);
+
+            // Вызов метода сервиса для получения списка авторов с пагинацией
+            $data = $this->authorService->getAuthorList($page, $limit);
             $status = Response::HTTP_OK;
         } catch (NotFoundHttpException $e) {
             $data = ['error' => $e->getMessage()];
             $status = Response::HTTP_NOT_FOUND;
+        } catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = Response::HTTP_BAD_REQUEST;
         }
 
         return $this->json($data, $status);

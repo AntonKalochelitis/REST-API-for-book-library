@@ -71,29 +71,41 @@ class AuthorService
     /**
      * Получение списка всех авторов
      *
+     * @param int $page
+     * @param int $limit
      * @return array
      */
-    public function getAuthorList(): array
+    public function getAuthorList(int $page, int $limit): array
     {
-        $result = [];
+        $offset = ($page - 1) * $limit;
 
-        foreach ($this->authorRepository->findAll() as $author) {
-            $result[] = [
-                'id' => $author->getId(),
-                'first_name' => $author->getFirstName(),
-                'last_name' => $author->getLastName(),
-                'patronymic' => $author->getPatronymic(),
-                'book_list' => array_map(function (Book $book) {
-                    return [
-                        'id' => $book->getId(),
-                        'title' => $book->getTitle(),
-                        'description' => $book->getDescription(),
-                        'image_name' => $book->getImageName(),
-                        'publication_date' => $book->getPublicationDate(),
-                    ];
-                }, $author->getBooks()->toArray()),
-            ];
-        }
+        // Получение авторов с пагинацией
+        $authors = $this->authorRepository->findBy([], null, $limit, $offset);
+
+        $total = $this->authorRepository->count([]); // Общее количество авторов
+
+        $result = [
+            'items' => array_map(function (Author $author) {
+                return [
+                    'id' => $author->getId(),
+                    'firstName' => $author->getFirstName(),
+                    'lastName' => $author->getLastName(),
+                    'patronymic' => $author->getPatronymic(),
+                    'book_list' => array_map(function (Book $book) {
+                        return [
+                            'id' => $book->getId(),
+                            'title' => $book->getTitle(),
+                            'description' => $book->getDescription(),
+                            'image_name' => $book->getImageName(),
+                            'publication_date' => $book->getPublicationDate(),
+                        ];
+                    }, $author->getBooks()->toArray()),
+                ];
+            }, $authors),
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+        ];
 
         return $result;
     }
