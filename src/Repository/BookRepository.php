@@ -16,6 +16,20 @@ class BookRepository extends ServiceEntityRepository
         parent::__construct($registry, Book::class);
     }
 
+    /**
+     * @param string $imageName
+     * @return Book|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findByImageName(string $imageName): ?Book
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.imageName = :imageName')
+            ->setParameter('imageName', $imageName)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 //    /**
 //     * @return Book[] Returns an array of Book objects
 //     */

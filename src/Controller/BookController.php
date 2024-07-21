@@ -242,6 +242,9 @@ class BookController extends AbstractController
             $status = Response::HTTP_OK;
         } catch (NotFoundHttpException $e) {
             $data = ['error' => $e->getMessage()];
+            $status = Response::HTTP_NOT_FOUND;
+        } catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
             $status = Response::HTTP_BAD_REQUEST;
         }
 
@@ -365,7 +368,7 @@ class BookController extends AbstractController
             $status = Response::HTTP_UNPROCESSABLE_ENTITY;
         } catch (NotFoundHttpException $e) {
             $data = ['error' => $e->getMessage()];
-            $status = Response::HTTP_BAD_REQUEST;
+            $status = Response::HTTP_NOT_FOUND;
         } catch (\Exception $e) {
             $data = ['error' => $e->getMessage()];
             $status = Response::HTTP_BAD_REQUEST;
@@ -401,7 +404,6 @@ class BookController extends AbstractController
                     type: "object",
                 )
             )
-
         ]
     )]
     public function delete(int $id): JsonResponse
@@ -415,7 +417,7 @@ class BookController extends AbstractController
             $status = Response::HTTP_OK;
         } catch (NotFoundHttpException $e) {
             $data = ['error' => $e->getMessage()];
-            $status = Response::HTTP_BAD_REQUEST;
+            $status = Response::HTTP_NOT_FOUND;
         } catch (\Exception $e) {
             $data = ['error' => $e->getMessage()];
             $status = Response::HTTP_BAD_REQUEST;
