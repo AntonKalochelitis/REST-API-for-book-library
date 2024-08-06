@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Book;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -11,7 +12,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class BookRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(
+        ManagerRegistry $registry,
+        protected EntityManagerInterface $entityManager
+    )
     {
         parent::__construct($registry, Book::class);
     }
@@ -28,6 +32,26 @@ class BookRepository extends ServiceEntityRepository
             ->setParameter('imageName', $imageName)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /**
+     * @param Book $author
+     * @return void
+     */
+    public function persistByObjBook(Book $author): void
+    {
+        $this->entityManager->persist($author);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param Book $author
+     * @return void
+     */
+    public function removeByObjBook(Book $author): void
+    {
+        $this->entityManager->remove($author);
+        $this->entityManager->flush();
     }
 
 //    /**

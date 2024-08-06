@@ -23,8 +23,7 @@ class BookService
         protected BookRepository         $bookRepository,
         protected AuthorRepository       $authorRepository,
         protected ValidatorInterface     $validator,
-        protected SerializerInterface    $serializer,
-        protected EntityManagerInterface $entityManager
+        protected SerializerInterface    $serializer
     )
     {
     }
@@ -90,8 +89,7 @@ class BookService
             }
         }
 
-        $this->entityManager->persist($book);
-        $this->entityManager->flush();
+        $this->bookRepository->persistByObjBook($book);
 
         return [
             'id' => $book->getId(),
@@ -289,7 +287,7 @@ class BookService
             }
         }
 
-        $this->entityManager->flush();
+        $this->bookRepository->persistByObjBook($book);
 
         return [
             'id' => $book->getId(),
@@ -320,7 +318,6 @@ class BookService
             throw new NotFoundHttpException("Book with ID $id not found.");
         }
 
-        $this->entityManager->remove($book);
-        $this->entityManager->flush();
+        $this->bookRepository->removeByObjBook($book);
     }
 }

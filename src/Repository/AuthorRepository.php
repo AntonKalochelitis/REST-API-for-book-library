@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Author;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -11,9 +12,32 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class AuthorRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(
+        ManagerRegistry                  $registry,
+        protected EntityManagerInterface $entityManager
+    )
     {
         parent::__construct($registry, Author::class);
+    }
+
+    /**
+     * @param Author $author
+     * @return void
+     */
+    public function persistByObjAuthor(Author $author): void
+    {
+        $this->entityManager->persist($author);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param Author $author
+     * @return void
+     */
+    public function removeByObjAuthor(Author $author): void
+    {
+        $this->entityManager->remove($author);
+        $this->entityManager->flush();
     }
 
 //    /**

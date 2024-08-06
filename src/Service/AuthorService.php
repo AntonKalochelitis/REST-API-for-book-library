@@ -6,7 +6,6 @@ use App\DTO\Author\DTOCreat;
 use App\Entity\Author;
 use App\Entity\Book;
 use App\Repository\AuthorRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -18,8 +17,7 @@ class AuthorService
     public function __construct(
         protected AuthorRepository $authorRepository,
         protected ValidatorInterface  $validator,
-        protected SerializerInterface $serializer,
-        protected EntityManagerInterface $entityManager
+        protected SerializerInterface $serializer
     )
     {
     }
@@ -62,8 +60,7 @@ class AuthorService
             $author->setPatronymic($dto->getPatronymic());
         }
 
-        $this->entityManager->persist($author);
-        $this->entityManager->flush();
+        $this->authorRepository->persistByObjAuthor($author);
 
         return $author;
     }
@@ -84,7 +81,7 @@ class AuthorService
 
         $total = $this->authorRepository->count([]); // Общее количество авторов
 
-        $result = [
+        return [
             'items' => array_map(function (Author $author) {
                 return [
                     'id' => $author->getId(),
@@ -106,8 +103,6 @@ class AuthorService
             'page' => $page,
             'limit' => $limit,
         ];
-
-        return $result;
     }
 
     /**
@@ -143,7 +138,6 @@ class AuthorService
             throw new NotFoundHttpException("Author with ID $id not found.");
         }
 
-        $this->entityManager->remove($author);
-        $this->entityManager->flush();
+        $this->authorRepository->removeByObjAuthor($author);
     }
 }
