@@ -72,7 +72,12 @@ make migration
    http://127.0.0.1:9580/api/doc
 
 6. Для запуску тестів:
-   Один раз запускаємо
+   Один раз запускаємо для інсталяції
 ```shell
-   test_install
+make test_install
+```
+
+   Проводимо тестування командою
+```shell
+make test
 ```
