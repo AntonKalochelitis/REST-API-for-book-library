@@ -1,83 +1,82 @@
 # REST-API-for-book-library
 
-Завдання (Backend Developer, PHP, Symfony)
+Task (Backend Developer, PHP, Symfony)
 
-Необхідно створити REST API для довідника книг.
-Формат запитів/відповідей - json
-1. Опис даних:
+You need to create a REST API for a book directory.
+The format of requests/responses is JSON.
+1. Data description:
 
-   a) Кожна книга повинна мати:
-   1. Назва. (Обов'язкове поле)
-   2. Короткий опис. (Необов'язкове поле)
-   3. Зображення. (jpg або png, не більше 2 Мб, повинна зберігатися в окрему
-      папку та мати унікальне ім'я файлу)
-   4. Автори. (Обов'язкове поле може бути кілька авторів в однієї книги)
-   5. Дата опублікування книги.
-   
-   b) У кожного автора мають бути:
-   1. Прізвище (Обов'язкове поле, не коротше 3 символів)
-   2. Ім'я (Обов'язкове)
-   3. По-батькові (Необов'язкове)
+    a) Each book should have:
+    1. Title (Required field)
+    2. Short description (Optional field)
+    3. Image (jpg or png, no larger than 2 MB, must be stored in a separate folder and have a unique file name)
+    4. Authors (Required field, a book may have multiple authors)
+    5. Publication date of the book
+
+    b) Each author should have:
+    1. Last name (Required field, at least 3 characters long)
+    2. First name (Required)
+    3. Middle name (Optional)
 
 2. API:
 
-      a) Роут для створення авторів;
+    a) Route to create authors;
 
-      b) Роут для перегляду списку всіх авторів;
+    b) Route to view the list of all authors;
 
-      c) Роут для створення книг;
+    c) Route to create books;
 
-      d) Роут для перегляду списку всіх книг;
+    d) Route to view the list of all books;
 
-      e) Роут для пошуку книг за прізвищем автора;
+    e) Route to search books by author's last name;
 
-      f) Роут для перегляду однієї книги;
+    f) Route to view a single book;
 
-      g) Роут для редагування книги;
+    g) Route to edit a book;
 
-Примітка: При отриманні списку будь яких сутностей (авторів, книг) повинна використовуватись пагінація.
+Note: Pagination should be used when retrieving a list of any entities (authors, books).
 
-Загальні положення!
+General provisions:
 
 
-Технології:
+Technologies:
 Symfony, PostgreSQL
-Інші технології/фреймворки/бібліотеки можна брати на свій розсуд.
+Other technologies/frameworks/libraries can be used at your discretion.
 
-Створення таблиць БД реалізувати через механізм міграцій.
+The creation of database tables should be implemented using the migration mechanism.
 
-Те шо не вказано в вимогах до тестового завдання можна робити на свій розсуд.
+Anything not specified in the requirements for the test task can be done at your discretion.
 
-1. Для старту проекту необхідно:
+1. To start the project, you need to run:
+
 ```shell
 make up
 ```
 
-2. Для встановлення залежностей, виконайте:
+2. To install dependencies, execute:
 ```shell
 $ make composer_install
 ```
 
-3. Для папки var у корені проекту встановіть розширені права:
+3. Set extended permissions for the var folder in the project's root:
 ```shell
 $ sudo chmod -R 777 ./var
 ```
 
-4. Для застосування міграцій, докорінно проекту, виконайте:
+4. To apply migrations, execute in the project's root:
 ```shell
 make migration
 ```
 
-5. Після успішного встановлення, отримайте документацію за наступним посиланням:
-   http://127.0.0.1:9580/api/doc
-
-6. Для запуску тестів:
-   Один раз запускаємо для інсталяції
+5. After a successful installation, access the documentation at the following link:
+    http://127.0.0.1:9580/api/doc
+   
+6. To run tests, Run once for installation:
 ```shell
 make test_install
 ```
 
-   Проводимо тестування командою
+7. Test using the command:
 ```shell
 make test
 ```
